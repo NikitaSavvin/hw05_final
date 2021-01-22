@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Запись пользователя {{ post.author.username }}{% endblock %}
+{% block header %}Запись пользователя {{ post.author.username }}{% endblock %}
+{% block content %}
+    <main role="main" class="container">
+        <div class="row">
+            {%include 'includes/similar.html'%}
+            <div class="col-md-9">
+                <div class="card mb-3 mt-1 shadow-sm">
+                    <div class="card-body">
+                        <p class="card-text">
+                            <a href="{% url 'profile'  author.username %}"><strong class="d-block text-gray-dark">@{{  author.username }}</strong></a>
+                            {% if post.group %}
+                                В группе: <a href="{% url 'group_posts' post.group.slug %}">{{ post.group }}</a>
+                            {% endif %}
+                        </p>
+                        {% for post in page %}
+                            {% include "includes/post_item.html" with post=post %}
+                        {% endfor %}
+                        {% include "includes/comments.html" with post=post form=form %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main> 
+{% endblock %}
