@@ -14,9 +14,7 @@
                                 В группе: <a href="{% url 'group_posts' post.group.slug %}">{{ post.group }}</a>
                             {% endif %}
                         </p>
-                        {% for post in page %}
                             {% include "includes/post_item.html" with post=post %}
-                        {% endfor %}
                         {% include "includes/comments.html" with post=post form=form %}
                     </div>
                 </div>
