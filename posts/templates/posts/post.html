@@ -1,24 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Запись пользователя {{ post.author.username }}{% endblock %}
-{% block header %}Запись пользователя {{ post.author.username }}{% endblock %}
+{% block title %} Пост автора {{ post.author.username }}{% endblock %}
+{% block header %}{# post.author.get_full_name #}{% endblock %}
 {% block content %}
-    <main role="main" class="container">
-        <div class="row">
-            {%include 'includes/similar.html'%}
-            <div class="col-md-9">
-                <div class="card mb-3 mt-1 shadow-sm">
-                    <div class="card-body">
-                        <p class="card-text">
-                            <a href="{% url 'profile'  author.username %}"><strong class="d-block text-gray-dark">@{{  author.username }}</strong></a>
-                            {% if post.group %}
-                                В группе: <a href="{% url 'group_posts' post.group.slug %}">{{ post.group }}</a>
-                            {% endif %}
-                        </p>
-                            {% include "includes/post_item.html" with post=post %}
-                        {% include "includes/comments.html" with form=form %}
-                    </div>
-                </div>
-            </div>
+{% load thumbnail %}
+​
+<main role="main" class="container">
+    <div class="row">
+        {% include 'includes/unf_f_ollow.html' with author=author post_count=post_count following=following %}
+        <div class="col-md-9">
+            {% include "includes/post_item.html" with post=post %}
+            {% include 'includes/comments.html' %}
         </div>
-    </main> 
-{% endblock %}
+    </div>
+</main>
+​{% endblock %}
+

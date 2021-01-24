@@ -69,8 +69,10 @@ def post_view(request, username, post_id):
     following = False
     if request.user.is_authenticated:
         following = request.user.follower.filter(author=post.author).exists()
-    context = {'post': post, 'post_count': post_count, 'author': post.author,
-               'comments': comments, 'form': form, 'following': following}
+    context = {
+        'post': post, 'post_count': post_count, 'author': post.author,
+        'comments': comments, 'form': form, 'following': following
+    }
     return render(request, 'posts/post.html', context)
 
 
@@ -111,7 +113,7 @@ def add_comment(request, username, post_id):
     form = CommentForm(request.POST or None)
     if form.is_valid():
         form = form.save(commit=False)
-        form.author = request.user
+        form.author = post.author
         form.post = post
         form.save()
         return redirect(reverse('post', args= [username,  post_id]))
