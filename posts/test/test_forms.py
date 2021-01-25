@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
-import shutil
-import tempfile
 
 from ..models import Group, Post
 
@@ -50,8 +48,9 @@ class PostFormTests(TestCase):
     def test_create_post_form(self):
         post_count = Post.objects.count()
         form_data = {
-            'group': self.group_2.id,
-            'text': 'Измененный текс',
+            'group': self.group.id,
+            'text': 'текст',
+            'image': self.test_image,
         }
         response = self.authorized_client.post(
             reverse('post_new'),
@@ -59,13 +58,12 @@ class PostFormTests(TestCase):
             follow=True,
         )
         self.assertEqual(Post.objects.count(), post_count+1)
-        post_image = response.context.get('page')[0].image
-        created_post = response.context['post']
+        created_post = Post.objects.exclude(id=self.post.id)[0]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(created_post.text, form_data['text'])
-        self.assertEqual(created_post.group, self.group_2)
-        self.assertEqual(created_post.author, self.user)
-        self.assertEqual(post_image, self.post.image)
+        self.assertEqual(created_post.group.id, form_data['group'])
+        self.assertEqual(self.user, self.post.author)
+        self.assertTrue(self.post.image)
 
     def test_edit_post(self):
         post_count = Post.objects.count()

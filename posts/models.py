@@ -32,8 +32,8 @@ class Post(models.Model):
         help_text='Напишите текст поста'
     )
     pub_date = models.DateTimeField(
-        "Дата публикации", 
-        auto_now_add=True, 
+        "Дата публикации",
+        auto_now_add=True,
         db_index=True
     )
     author = models.ForeignKey(
@@ -52,7 +52,8 @@ class Post(models.Model):
     )
     image = models.ImageField(
         upload_to='posts/', blank=True, null=True
-    )  
+    )
+
     class Meta:
         ordering = ['-pub_date']
 
@@ -84,10 +85,9 @@ class Comment(models.Model):
     )
 
 
-
 class Follow(models.Model):
     user = models.ForeignKey(
-        User, 
+        User,
         on_delete=models.CASCADE,
         related_name='follower'
     )

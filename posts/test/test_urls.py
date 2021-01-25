@@ -44,7 +44,12 @@ class PostFormModelTest(TestCase):
                 'post_edit', args=[self.user.username, self.post.id]
             ): 200,
             reverse('500'): 500,
-            reverse('404'):404
+            '/none/&/&/none/': 404,
+            reverse(
+                'add_comment', args=[self.user.username, self.post.id]
+            ): 302,
+            reverse('profile_follow', args=[self.user]): 302,
+            reverse('profile_unfollow', args=[self.user]): 302
         }
         for url, status in pages.items():
             with self.subTest(url=url):
@@ -60,7 +65,10 @@ class PostFormModelTest(TestCase):
             reverse('post', args=[self.user, self.post.id]): 200,
             reverse('post_edit', args=[self.user, self.post.id]): 302,
             reverse('500'): 500,
-            reverse('404'):404
+            '/none/&/&/none/': 404,
+            reverse(
+                'add_comment', args=[self.user.username, self.post.id]
+            ): 302,
         }
         for url, status in pages.items():
             with self.subTest(url=url):
@@ -73,6 +81,8 @@ class PostFormModelTest(TestCase):
             'post_edit': reverse(
                             'post_edit', args=[self.user, self.post.id]
                          ),
+            'add_comment': reverse(
+                            'add_comment', args=[self.user, self.post.id])
         }
         for names, url in pages.items():
             with self.subTest(names=names):
@@ -98,8 +108,7 @@ class PostFormModelTest(TestCase):
             reverse(
                 'post_edit', args=[self.user, self.post.id]
             ): 'posts/post_new.html',
-            reverse('500'):'misc/500.html',
-            reverse('404'):'misc/404.html'
+            reverse('500'): 'misc/500.html',
         }
         for reverse_name, template in templates_url_names.items():
             with self.subTest(reverse_name=reverse_name):

@@ -1,10 +1,10 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
 
-from ..models import Group, Post
+from ..models import Comment, Follow, Group, Post
 
 User = get_user_model()
 
@@ -33,7 +33,7 @@ class PostFormModelTest(TestCase):
             name='test_image.gif',
             content=cls.image_bytes,
             content_type='image/gif'
-        )    
+        )
         cls.post = Post.objects.create(
             text='Тестовый текст потса',
             pub_date='2020-12-15',
@@ -47,6 +47,10 @@ class PostFormModelTest(TestCase):
             description='Tестовое описание 1',
         )
         cls.user_1 = User.objects.create(username='Alena')
+        cls.authorized_client_2 = Client()
+        cls.user_2 = User.objects.create(username='Sergey')
+        cls.authorized_client_2.force_login(cls.user_2)
+        cls.user_follow = cls.user_2
 
     def test_pages_uses_correct_template(self):
         templates_pages_names = {
@@ -100,7 +104,7 @@ class PostFormModelTest(TestCase):
         form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
-            #'image': forms.fields.ImageField,
+            'image': forms.fields.ImageField,
         }
         for url in urls:
             with self.subTest(url=url):
@@ -125,6 +129,68 @@ class PostFormModelTest(TestCase):
             with self.subTest(names=names):
                 response = self.authorized_client.get(slugs)
                 self.assertEqual((response.context.get('paginator').count), 1)
+
+    def test_cache(self):
+        self.client.get(reverse('index'))
+        post_cashe = Post.objects.create(
+            text='тест для проверки кэша',
+            author=self.user
+        )
+        response_2 = self.client.get(reverse('index'))
+        self.assertEqual(
+            response_2.context.get('page').object_list[0], post_cashe
+        )
+
+    def test_post_new_follow(self):
+        Follow.objects.create(
+            user=self.user_follow,
+            author=self.user
+        )
+        response = self.authorized_client_2.get(
+            reverse('follow_index')
+        )
+        self.assertIn(self.post, response.context["page"])
+
+    def test_add_comment_authorized_user(self):
+        form_data = {"text": "test comment"}
+        response = self.authorized_client.post(
+            reverse('add_comment', args=[self.user, self.post.id]),
+            data=form_data, follow=True
+        )
+        redirect = reverse('post', args=[self.user, self.post.id])
+        comment = Comment.objects.last()
+        self.assertRedirects(response, redirect)
+        self.assertEqual(self.post.comments.count(), 1)
+        self.assertEqual(comment.post, self.post)
+        self.assertEqual(comment.text, form_data["text"])
+
+    def test_add_comment_client_user(self):
+        form_data = {"text": "test comment"}
+        self.client.post(
+            reverse('add_comment', args=[self.user_1, self.post.id]),
+            data=form_data, follow=True
+        )
+        self.assertEqual(self.post.comments.count(), 0)
+
+    def test_follow(self):
+        self.authorized_client.get(
+            reverse('profile_follow', args=[self.user_follow])
+        )
+        self.assertTrue(
+            Follow.objects.filter(
+                author=self.user_follow, user=self.user
+            ).exists()
+        )
+
+    def test_unfollow(self):
+        self.authorized_client.get(
+            reverse('profile_unfollow', args=[self.user_follow])
+        )
+        self.assertFalse(
+            Follow.objects.filter(
+                user=self.user_follow, author=self.user
+            ).exists()
+        )
 
 
 class PaginatorViewTest(TestCase):
@@ -157,4 +223,3 @@ class PaginatorViewTest(TestCase):
     def test_page_contains_thirteen(self):
         response = self.client.get(reverse('index'))
         self.assertEqual((response.context.get('paginator').count), 13)
- 
