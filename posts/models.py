@@ -32,7 +32,7 @@ class Post(models.Model):
         help_text='Напишите текст поста'
     )
     pub_date = models.DateTimeField(
-        "Дата публикации",
+        'Дата публикации',
         auto_now_add=True,
         db_index=True
     )

@@ -149,10 +149,10 @@ class PostFormModelTest(TestCase):
         response = self.authorized_client_2.get(
             reverse('follow_index')
         )
-        self.assertIn(self.post, response.context["page"])
+        self.assertIn(self.post, response.context['page'])
 
     def test_add_comment_authorized_user(self):
-        form_data = {"text": "test comment"}
+        form_data = {'text': 'test comment'}
         response = self.authorized_client.post(
             reverse('add_comment', args=[self.user, self.post.id]),
             data=form_data, follow=True
@@ -162,10 +162,10 @@ class PostFormModelTest(TestCase):
         self.assertRedirects(response, redirect)
         self.assertEqual(self.post.comments.count(), 1)
         self.assertEqual(comment.post, self.post)
-        self.assertEqual(comment.text, form_data["text"])
+        self.assertEqual(comment.text, form_data['text'])
 
     def test_add_comment_client_user(self):
-        form_data = {"text": "test comment"}
+        form_data = {'text': 'test comment'}
         self.client.post(
             reverse('add_comment', args=[self.user_1, self.post.id]),
             data=form_data, follow=True

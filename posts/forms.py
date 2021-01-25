@@ -19,12 +19,6 @@ class PostForm(forms.ModelForm):
             'image': 'Добавьте картинку',
         }
 
-    def clean_subject(self):
-        data = self.cleaned_data['text']
-        if data == '':
-            raise forms.ValidationError('Вы должны заполнить это поле')
-        return data
-
 
 class CommentForm(forms.ModelForm):
     class Meta:

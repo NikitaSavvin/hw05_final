@@ -40,9 +40,9 @@ class PostFormTests(TestCase):
             image=cls.test_image,
         )
         cls.group_2 = Group.objects.create(
-            title="Тестовый заголовок 2",
-            slug="test-group_2",
-            description="Тестовое описание_2",
+            title='Тестовый заголовок 2',
+            slug='test-group_2',
+            description='Тестовое описание_2',
         )
 
     def test_create_post_form(self):
